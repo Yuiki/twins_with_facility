@@ -1,7 +1,7 @@
 {
  "manifest_version": 2,
  "name": "TWINS with Facility",
- "version": "1.0.0",
+ "version": "1.0.1",
 
  "description": "Append facility data to cource registration timetable in TWINS(University of Tsukuba)",
  "icons": {
