@@ -18,7 +18,7 @@ getCourses().each(function() {
 var params = {
   pageId:'SB0070',
   action:'search',
-  txtFy:'2017',
+  txtFy:getTerm(),
   cmbTerm:'',
   cmbDay:'',
   cmbPeriod:'',
@@ -99,5 +99,14 @@ function appendFacilityData(course, facility) {
   if (facility != null) {
     var facility_with_color = '<font color="#DF3A01">' + facility + '</font>';
     course.html(course.html() + '\n' + facility_with_color);
+  }
+}
+
+function getTerm() {
+  now = new Date();
+  if (now.getMonth() < 3) {
+    return now.getFullYear() - 1;
+  } else {
+    return now.getFullYear();
   }
 }
