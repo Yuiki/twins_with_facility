@@ -18,8 +18,8 @@ const getCourseCode = (course) => {
 
 const appendFacilityData = (course, facility) => {
   if (facility != null) {
-    const facility_with_color = '<font color="#DF3A01">' + facility + "</font>"
-    course.innerHTML = course.innerHTML + "\n" + facility_with_color
+    const facilityWithColor = '<font color="#DF3A01">' + facility + "</font>"
+    course.innerHTML = course.innerHTML + "\n" + facilityWithColor
   }
 }
 
@@ -32,22 +32,40 @@ const getTerm = () => {
   }
 }
 
-;(() => {
-  var query = ""
-  getCourses().map((course) => {
-    const courseCode = getCourseCode(course)
-    if (courseCode == null) {
-      return
-    }
-    query += courseCode + " "
-
-    // キャッシュがあればそれを表示
-    chrome.storage.local.get(courseCode, (cache) => {
-      appendFacilityData(course, cache[courseCode])
+;(async () => {
+  const courses = getCourses()
+  const courseCodes = courses
+    .map((course) => getCourseCode(course))
+    .filter((code) => code)
+  const cachedCodes = await new Promise((resolve, reject) => {
+    chrome.storage.local.get(courseCodes, (cached) => {
+      if (chrome.runtime.lastError) {
+        const e = chrome.runtime.lastError.message
+        console.error(e)
+        reject(e)
+      } else {
+        resolve(cached)
+      }
     })
   })
 
-  if (query == "") {
+  const query = courses
+    .reduce((prev, curr) => {
+      const courseCode = getCourseCode(curr)
+      if (!courseCode) {
+        return prev
+      }
+      const cachedFacility = cachedCodes[courseCode]
+      if (cachedFacility) {
+        appendFacilityData(curr, cachedFacility)
+      } else {
+        return `${prev} ${courseCode}`
+      }
+      return prev
+    }, "")
+    .trim()
+
+  if (!query) {
     return
   }
 
@@ -69,7 +87,6 @@ const getTerm = () => {
     page: 0,
     total: -1
   }
-  var facilities = {}
   chrome.runtime.sendMessage({ params }, (data) => {
     const parser = new DOMParser()
     const doc = parser.parseFromString(
@@ -77,17 +94,18 @@ const getTerm = () => {
       "text/html"
     )
     const tables = [...doc.getElementsByTagName("table")]
-    tables.map((table) => {
-      const course = table.getElementsByClassName("ut-course")[0].innerText
-      const facility = table.getElementsByClassName("ut-facility")[0].innerText
-      facilities[course] = facility
+    const facilities = tables.reduce((prev, curr) => {
+      const course = curr.getElementsByClassName("ut-course")[0].innerText
+      const facility = curr.getElementsByClassName("ut-facility")[0].innerText
+      prev[course] = facility
       // キャッシュ
       chrome.storage.local.set({ [course]: facility }, () => {})
-    })
+      return prev
+    }, {})
 
-    getCourses().map((course) => {
+    courses.forEach((course) => {
       const courseCode = getCourseCode(course)
-      if (courseCode == null) {
+      if (!courseCode) {
         return
       }
 
