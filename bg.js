@@ -1,9 +1,9 @@
 chrome.runtime.onMessage.addListener(function(request, _sender, sendResponse) {
-  $.post('https://kdb.tsukuba.ac.jp', request.params, function(data, status) {
+  $.post("https://kdb.tsukuba.ac.jp", request.params, function(data, status) {
     if (status != "success") {
-      return;
+      return
     }
-    sendResponse(data);
+    sendResponse(data)
   })
-  return true;
-});
+  return true
+})
