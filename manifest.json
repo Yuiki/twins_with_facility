@@ -1,7 +1,7 @@
 {
  "manifest_version": 2,
  "name": "TWINS with Facility",
- "version": "1.0.1",
+ "version": "1.0.2",
 
  "description": "Append facility data to cource registration timetable in TWINS(University of Tsukuba)",
  "icons": {
@@ -19,6 +19,12 @@
    "all_frames": true
   }
 ],
+ "background": {
+  "scripts": [
+   "jquery-3.2.1.min.js", 
+   "bg.js"
+  ]
+ },
 "permissions": [
     "https://kdb.tsukuba.ac.jp/",
     "storage"

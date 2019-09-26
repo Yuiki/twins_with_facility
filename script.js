@@ -39,11 +39,7 @@
     total:-1
   };
   var facilities = {};
-  $.post('https://kdb.tsukuba.ac.jp', params, function(data, status) {
-    if (status != "success") {
-      return;
-    }
-
+  chrome.runtime.sendMessage({params}, (data) => {
     dom = $.parseHTML(eval('(' + data + ')')['list']);
     $.each(dom, function(i, el) {
       if (el.nodeName != "TABLE") {
