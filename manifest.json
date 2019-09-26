@@ -3,7 +3,7 @@
   "name": "TWINS with Facility",
   "version": "1.0.2",
 
-  "description": "Append facility data to cource registration timetable in TWINS(University of Tsukuba)",
+  "description": "Append facility data to course registration timetable in TWINS(University of Tsukuba)",
   "icons": {
     "16": "assets/icon16.png",
     "48": "assets/icon48.png",
