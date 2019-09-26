@@ -18,13 +18,13 @@ const getCourseCode = (course) => {
 
 const appendFacilityData = (course, facility) => {
   if (facility != null) {
-    var facility_with_color = '<font color="#DF3A01">' + facility + "</font>"
+    const facility_with_color = '<font color="#DF3A01">' + facility + "</font>"
     course.innerHTML = course.innerHTML + "\n" + facility_with_color
   }
 }
 
 const getTerm = () => {
-  now = new Date()
+  const now = new Date()
   if (now.getMonth() < 3) {
     return now.getFullYear() - 1
   } else {
@@ -35,7 +35,7 @@ const getTerm = () => {
 ;(() => {
   var query = ""
   getCourses().map((course) => {
-    var courseCode = getCourseCode(course)
+    const courseCode = getCourseCode(course)
     if (courseCode == null) {
       return
     }
@@ -51,7 +51,7 @@ const getTerm = () => {
     return
   }
 
-  var params = {
+  const params = {
     pageId: "SB0070",
     action: "search",
     txtFy: getTerm(),
@@ -86,7 +86,7 @@ const getTerm = () => {
     })
 
     getCourses().map((course) => {
-      var courseCode = getCourseCode(course)
+      const courseCode = getCourseCode(course)
       if (courseCode == null) {
         return
       }
