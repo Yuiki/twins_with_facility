@@ -1,6 +1,40 @@
-;(function() {
+const getCourses = () => [
+  ...document.getElementsByClassName("rishu-koma-inner")
+]
+
+const getCourseCode = (course) => {
+  const aTag = course.getElementsByTagName("a")[0]
+  if (aTag) {
+    return aTag.innerText.trim()
+  }
+
+  // 科目番号がaタグで囲まれていない場合
+  const code = course.innerText.split("\n")[0].trim()
+  if (code === "未登録") {
+    return null
+  }
+  return code
+}
+
+const appendFacilityData = (course, facility) => {
+  if (facility != null) {
+    var facility_with_color = '<font color="#DF3A01">' + facility + "</font>"
+    course.innerHTML = course.innerHTML + "\n" + facility_with_color
+  }
+}
+
+const getTerm = () => {
+  now = new Date()
+  if (now.getMonth() < 3) {
+    return now.getFullYear() - 1
+  } else {
+    return now.getFullYear()
+  }
+}
+
+;(() => {
   var query = ""
-  getCourses().map(function(course) {
+  getCourses().map((course) => {
     var courseCode = getCourseCode(course)
     if (courseCode == null) {
       return
@@ -8,7 +42,7 @@
     query += courseCode + " "
 
     // キャッシュがあればそれを表示
-    chrome.storage.local.get(courseCode, function(cache) {
+    chrome.storage.local.get(courseCode, (cache) => {
       appendFacilityData(course, cache[courseCode])
     })
   })
@@ -48,10 +82,10 @@
       const facility = table.getElementsByClassName("ut-facility")[0].innerText
       facilities[course] = facility
       // キャッシュ
-      chrome.storage.local.set({ [course]: facility }, function() {})
+      chrome.storage.local.set({ [course]: facility }, () => {})
     })
 
-    getCourses().map(function(course) {
+    getCourses().map((course) => {
       var courseCode = getCourseCode(course)
       if (courseCode == null) {
         return
@@ -65,38 +99,4 @@
       appendFacilityData(course, facilities[courseCode])
     })
   })
-
-  function getCourses() {
-    return [...document.getElementsByClassName("rishu-koma-inner")]
-  }
-
-  function getCourseCode(course) {
-    const aTag = course.getElementsByTagName("a")[0]
-    if (aTag) {
-      return aTag.innerText.trim()
-    }
-
-    // 科目番号がaタグで囲まれていない場合
-    const code = course.innerText.split("\n")[0].trim()
-    if (code === "未登録") {
-      return null
-    }
-    return code
-  }
-
-  function appendFacilityData(course, facility) {
-    if (facility != null) {
-      var facility_with_color = '<font color="#DF3A01">' + facility + "</font>"
-      course.innerHTML = course.innerHTML + "\n" + facility_with_color
-    }
-  }
-
-  function getTerm() {
-    now = new Date()
-    if (now.getMonth() < 3) {
-      return now.getFullYear() - 1
-    } else {
-      return now.getFullYear()
-    }
-  }
 })()

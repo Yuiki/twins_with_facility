@@ -1,4 +1,4 @@
-chrome.runtime.onMessage.addListener(function(request, _sender, sendResponse) {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   const params = new URLSearchParams()
   for (const k in request.params) {
     params.set(k, request.params[k])
