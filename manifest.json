@@ -5,22 +5,22 @@
 
   "description": "Append facility data to cource registration timetable in TWINS(University of Tsukuba)",
   "icons": {
-    "16": "icon16.png",
-    "48": "icon48.png",
-    "128": "icon128.png"
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
   },
 
   "author": "Yuiki",
   "content_scripts": [
     {
       "matches": ["https://twins.tsukuba.ac.jp/campusweb/campussquare.do*"],
-      "js": ["script.js"],
+      "js": ["src/script.js"],
       "run_at": "document_end",
       "all_frames": true
     }
   ],
   "background": {
-    "scripts": ["bg.js"]
+    "scripts": ["src/bg.js"]
   },
   "permissions": ["https://kdb.tsukuba.ac.jp/", "storage"]
 }
