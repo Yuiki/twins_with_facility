@@ -3,13 +3,14 @@ const getCourses = () => [
 ]
 
 const getCourseCode = (course) => {
+  let code
   const aTag = course.getElementsByTagName("a")[0]
   if (aTag) {
-    return aTag.innerText.trim()
+    code = aTag.innerText.trim()
   }
 
   // 科目番号がaタグで囲まれていない場合
-  const code = course.innerText.split("\n")[0].trim()
+  code = course.innerText.split("\n")[0].trim()
   if (code === "未登録") {
     return null
   }
@@ -37,7 +38,7 @@ const getTerm = () => {
   const courseCodes = courses
     .map((course) => getCourseCode(course))
     .filter((code) => code)
-  const cachedCodes = await new Promise((resolve, reject) => {
+  const cachedFacilities = await new Promise((resolve, reject) => {
     chrome.storage.local.get(courseCodes, (cached) => {
       if (chrome.runtime.lastError) {
         const e = chrome.runtime.lastError.message
@@ -49,72 +50,47 @@ const getTerm = () => {
     })
   })
 
-  const query = courses
-    .reduce((prev, curr) => {
-      const courseCode = getCourseCode(curr)
-      if (!courseCode) {
-        return prev
+  const courseIds = courses
+    .map((course) => {
+      const code = getCourseCode(course)
+      if (!code) {
+        return
       }
-      const cachedFacility = cachedCodes[courseCode]
+      const cachedFacility = cachedFacilities[code]
       if (cachedFacility) {
-        appendFacilityData(curr, cachedFacility)
-      } else {
-        return `${prev} ${courseCode}`
+        appendFacilityData(course, cachedFacility)
+        return
       }
-      return prev
-    }, "")
-    .trim()
+      return code
+    })
+    .filter((code) => code)
 
-  if (!query) {
+  if (courseIds.length === 0) {
     return
   }
 
-  const params = {
-    pageId: "SB0070",
-    action: "search",
-    txtFy: getTerm(),
-    cmbTerm: "",
-    cmbDay: "",
-    cmbPeriod: "",
-    hdnOrg: "",
-    hdnReq: "",
-    hdnFac: "",
-    hdnDepth: "",
-    chkSyllabi: false,
-    chkAuditor: false,
-    txtSyllabus: query,
-    reschedule: true,
-    page: 0,
-    total: -1
-  }
-  chrome.runtime.sendMessage({ params }, (data) => {
-    const parser = new DOMParser()
-    const doc = parser.parseFromString(
-      eval("(" + data + ")")["list"],
-      "text/html"
-    )
-    const tables = [...doc.getElementsByTagName("table")]
-    const facilities = tables.reduce((prev, curr) => {
-      const course = curr.getElementsByClassName("ut-course")[0].innerText
-      const facility = curr.getElementsByClassName("ut-facility")[0].innerText
+  chrome.runtime.sendMessage({ courseIds }, (snaps) => {
+    const facilities = snaps.reduce((prev, curr) => {
+      const course = curr.id
+      const facility = curr.classRoom
       prev[course] = facility
       // キャッシュ
       chrome.storage.local.set({ [course]: facility }, () => {})
       return prev
     }, {})
-
     courses.forEach((course) => {
       const courseCode = getCourseCode(course)
       if (!courseCode) {
         return
       }
 
+      const facility = facilities[courseCode]
       // キャッシュを使って既に表示していないか
-      if (course.innerText.indexOf(facilities[courseCode]) != -1) {
+      if (course.innerText.indexOf(facility) != -1) {
         return
       }
 
-      appendFacilityData(course, facilities[courseCode])
+      appendFacilityData(course, facility)
     })
   })
 })()
